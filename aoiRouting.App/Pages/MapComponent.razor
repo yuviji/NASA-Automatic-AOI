@@ -1,38 +1,30 @@
 ﻿@inject IJSRuntime Js;
 @using System
 @using System.Text.Json
+@using aoiRouting.Shared.Models
+
 <div id="@_mapId" class="google-map"></div>
 @code
 {
-    [Parameter] public Func<double, double, Task> OnLocChangedAsync { get; set; } 
-    [Parameter] public Func<double, double, Task> OnLocSetAsync { get; set; } 
+    [Parameter] public Func<double, double, Task> OnAOISetAsync { get; set; } 
     [Parameter] public Func<Guid, Task> ViewDetailsCallback { get; set; }
-    [Parameter] public Func<Guid, Task> ViewLocDetailsCallback { get; set; }
-    [Parameter] public Func<double[][], string[], Task> SelectLocCallback { get; set; }
     [Parameter] public Func<double, double, Task> OnLongPressAsync { get; set; }
-    public async Task OnLocationChangedAsync()
-    {
-        await Js.InvokeVoidAsync("moveMeMarker", _lat, _lon);
-        await OnLocChangedAsync(_lat, _lon);
-    }
+    [Parameter] public Func<Guid, double, double, Task> UpdateLocationAsync { get; set; }
     [JSInvokable] public async Task ViewDetails(string idString)
     {
         Guid.TryParse(idString, out Guid id);
         await ViewDetailsCallback(id);
     }
-    [JSInvokable] public async Task ViewLocDetails(string idString)
-    {
-        Guid.TryParse(idString, out Guid id);
-        await ViewLocDetailsCallback(id);
-    }
-    [JSInvokable] public async Task SelectLoc(double[][] sent, string[] ids)
-    {
-        await SelectLocCallback(sent, ids);
-    }
     [JSInvokable] public async Task OnLongPress(double lat, double lon)
     {
         await OnLongPressAsync(lat, lon);
-    }   
+    }
+    [JSInvokable]
+    public async Task UpdateLocation(string idStr, double lat, double lon)
+    {
+        Guid.TryParse(idStr, out Guid id);
+        await UpdateLocationAsync(id, lat, lon);
+    }
 }
 @code
 {
@@ -64,19 +56,18 @@
         if (!_mapsInitialized && _domReady)
         {
             await InitMap();
-            await OnLocSetAsync(_lat, _lon);
+            await OnAOISetAsync(_lat, _lon);
         }
         else
         {
-            await OnLocationChangedAsync();
+            await Js.InvokeVoidAsync("moveMeMarker", _lat, _lon);
         }
     }
     private async Task InitMap()
     {
         if (_domReady)
-        {
+        {   
             await Js.InvokeVoidAsync("initMap", _objectReference, _mapId, _lat, _lon, 18);
-            await OnLocChangedAsync(_lat, _lon);
             _mapsInitialized = true;
         }
     }

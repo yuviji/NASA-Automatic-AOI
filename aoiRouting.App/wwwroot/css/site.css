@@ -1,9 +1,9 @@
 :root {
-  --font-primary: "Helvetica", sans-serif;
+  --font-primary: "Calibri", sans-serif;
 }
 
 body {
-  color: #434343;
+  color: white;
   margin: 0;
   font-family: var(--font-primary);
 }
@@ -18,7 +18,7 @@ body {
 }
 
 .date-time {
-  color: #666666;
+  color: black;
 }
 
 .body-view {
@@ -30,7 +30,7 @@ body {
   float: right;
   border-top: thick groove white;
   max-height: 100vh;
-  background-color: #ccf7bd;
+  background-color: #0b3d91;
   z-index: 10;
   border-radius: 30px 30px 0 0;
 }
@@ -52,7 +52,7 @@ body {
 }
 
 .long-press-menu {
-  background-color: #ccf7bd;
+  background-color: #0b3d91;
   border: thick groove white;
   position: fixed;
   top: 0;
@@ -70,12 +70,18 @@ body {
   display: flex;
   z-index: 102;
   flex-direction: column;
-  background-color: #ccf7bd;
+  background-color: #0b3d91;
+  color: white;
   border: thick groove white;
   border-radius: 10px;
   padding: 10px;
-  width: 80vw;
+  margin-left: 500px;
+  width: 400px;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+}
+.modal-create-pin .woops {
+  padding-top: 20px;
+  padding-right: 40%;
 }
 .modal-create-pin .blazored-modal-title {
   margin: 0;
@@ -84,7 +90,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 5px 1em 5px;
+  padding: 5px 5px 5px 5px;
 }
 .modal-create-pin form {
   box-sizing: border-box;
@@ -92,8 +98,8 @@ body {
 .modal-create-pin form button {
   font-size: 1.25em;
   font-weight: bold;
-  background-color: #86ec62;
-  color: #434343;
+  background-color: #041532;
+  color: white;
   border: 0;
   padding: 15px;
   border-radius: 5px;
@@ -103,7 +109,7 @@ body {
   padding: 5px;
 }
 .modal-create-pin form div:not(div:nth-last-child(1)) {
-  border-bottom: 1px #effdea solid;
+  border-bottom: 1px #0f51c0 solid;
 }
 .modal-create-pin form input, .modal-create-pin form select, .modal-create-pin form textarea {
   outline: none;
@@ -119,7 +125,7 @@ body {
   padding: 5px;
   font-family: var(--font-primary);
   border: 1px black dotted;
-  background-color: #baf4a6;
+  background-color: #093379;
 }
 .modal-create-pin form .file-upload input[type=file] {
   display: none;
@@ -144,7 +150,7 @@ button.gm-ui-hover-effect {
   align-items: center;
   width: calc(100% - 20px);
   border-radius: 10px;
-  background-color: #baf4a6;
+  background-color: #093379;
   margin: 0 10px;
   padding-right: 10px;
   column-gap: 10px;
@@ -204,7 +210,7 @@ button.gm-ui-hover-effect {
   margin: 0;
 }
 .comment:not(:last-child) {
-  border-bottom: 1px #a9f190 solid;
+  border-bottom: 1px #072962 solid;
 }
 
 .post-view {
@@ -252,7 +258,7 @@ button.gm-ui-hover-effect {
   margin: 0;
   font-family: var(--font-primary);
   font-size: 1.6em;
-  color: #434343;
+  color: white;
 }
 
 .popup-bubble {
@@ -264,7 +270,7 @@ button.gm-ui-hover-effect {
   left: 0;
   transform: translate(-50%, -100%);
   /* Style the bubble. */
-  background-color: #97ef79;
+  background-color: #061f4a;
   padding: 5px;
   border-radius: 5px;
   font-family: sans-serif;
@@ -273,7 +279,7 @@ button.gm-ui-hover-effect {
 }
 .popup-bubble ion-icon {
   font-size: 1.6em;
-  color: #666666;
+  color: white;
   padding-left: 5px;
 }
 
@@ -298,7 +304,7 @@ button.gm-ui-hover-effect {
   /* The tip is 8px high, and 12px wide. */
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 8px solid #97ef79;
+  border-top: 8px solid #061f4a;
 }
 
 /* This element draws the tip. */

@@ -1,13 +1,16 @@
 ﻿@using aoiRouting.Shared.Models
 @using Blazored.Modal.Services
 @using Blazored.Modal
+
 @inject HttpClient Http;
-<div class="long-press-menu">
-    <div @onclick="CreatePin">Report for Sprucing!</div>
+
+<div class="long-press-menu" style="background-color: #0b3d91;">
+    <div @onclick="CreatePin">Create Grid!</div>
     <div style="border-left: thick groove white" @onclick="CloseCallback">
         <ion-icon name="close" class="close-icon"></ion-icon>
     </div>
 </div>
+
 @code
 {
     [Parameter] public (double, double) Coords { get; set; }
@@ -17,8 +20,8 @@
     {
         var parameters = new ModalParameters();
         parameters.Add(nameof(PinCreate.Position), Coords);
-        ModalOptions options = new() { Class = "modal-create-pin" };
-        var modal = Modal.Show<PinCreate>("Report for Sprucing!", parameters, options);
+        ModalOptions options = new() { Class = "modal-create-pin"};
+        var modal = Modal.Show<PinCreate>("Confirm AOI Grid", parameters, options);
         var modalResult = await modal.Result;
         if (!modalResult.Cancelled) await CloseCallback();
     }

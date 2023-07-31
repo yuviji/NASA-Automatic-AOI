@@ -41,11 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\js\index.js" />
-    <None Include="wwwroot\js\index.js.map" />
-  </ItemGroup>
-
-  <ItemGroup>
     <TypeScriptCompile Include="wwwroot\js\index.ts" />
   </ItemGroup>
 

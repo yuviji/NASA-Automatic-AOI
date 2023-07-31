@@ -51,7 +51,7 @@ textarea {
 }
 
 .received {
-    background: #4CAF50;
+    background: #0b3d91;
     color: #fff;
     margin-left: 10px;
     margin-right: 10%;
@@ -64,7 +64,7 @@ textarea {
 }
 
 .received:after {
-    border-right-color: #4CAF50;
+    border-right-color: #0b3d91;
     border-left: 0;
     left: -20px;
 }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using aoiRouting.Shared;
 using Microsoft.AspNetCore.SignalR;
 using static aoiRouting.Shared.MathExt;
+
 namespace aoiRouting.Backend.Hubs
 {
     public class PinHub : Hub<IPinClient>

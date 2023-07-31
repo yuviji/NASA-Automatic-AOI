@@ -1,36 +1,53 @@
-﻿@inject IJSRuntime Js;
-@using System
+﻿@using System
 @using System.Text.Json
 @using aoiRouting.Shared.Models
+
+@inject IJSRuntime Js;
+
 <div style="height:100vh;border-top-right-radius:30px;background-color:#0b3d91;border-color:white;border-left-width:0px;border-bottom-width:0px;border-top-width:0px;border-right-width:thick;border-style:groove">
-<img src="/assets/icons/nasa.svg" style="padding-top:5%;display: block;margin-left: auto; margin-right: auto;" width="60%" height="auto" />
-<div style="margin-left:10%;margin-right:10%;margin-bottom:5%;padding-left:5%;padding-right:5%;padding-bottom:5%;background-color:white;border-style:groove;border-radius:1vw">
-    <h3 style="text-align:center;font-family:'Calibri';font-weight:bold">AOI Points</h3>
-    <hr />
-    <h4 style="font-family:'Calibri';font-weight:bolder">Pending: @Future.Count()</h4>
-    <div style="max-height: 12vh; overflow-y: scroll;">
-        @foreach (var a in Future)
-        {
-            <div style="font-family:'Calibri'">
-                <LocDisplay Title="@a.Title" Date="@a.Expires" />
-            </div>
-        }
-    </div>
-    <hr />
-    <h4 style="font-family:'Calibri';font-weight:bolder">Collected: @Past.Count()</h4>
-    <div style="max-height: 12vh; overflow-y: scroll;">
-        @foreach (var a in Past)
-        {
-            <div style="font-family:'Calibri'">
-                <LocDisplay Title="@a.Title" Date="@a.Expires" />
-            </div>
-        }
-    </div>
-    </div>
+	<img src="/assets/icons/nasa.svg" style="padding-top:5%;display: block;margin-left: auto; margin-right: auto; height: auto; width: 60%" />
+	<div style="margin-left:10%;margin-right:10%;margin-bottom:5%;padding-left:5%;padding-right:5%;padding-bottom:5%;color:black;background-color:white;border-style:groove;border-radius:1vw">
+		<h3 style="text-align:center;font-weight:bold">AOI Points</h3>
+		<hr />
+		<h4 style="font-weight:bolder">Pending: @Future.Count()</h4>
+		<div style="max-height: 12vh; overflow-y: scroll;">
+			@foreach (var a in Future)
+			{
+				<div>
+					<PinDisplay pin="a" done=false />
+				</div>
+			}
+		</div>
+		<hr />
+		<h4 style="font-weight:bolder">Collected: @Past.Count()</h4>
+		<div style="max-height: 12vh; overflow-y: scroll;">
+			@foreach (var a in Past)
+			{
+				<div>
+					<PinDisplay pin="a" done=true />
+				</div>
+			}
+		</div>
+	</div>
+	<div style="margin-left:10%;margin-right:10%;margin-bottom:5%;padding-left:5%;padding-right:5%;padding-bottom:5%;color:black;background-color:white;border-style:groove;border-radius:1vw">
+		<Navigation></Navigation>
+	</div>
+	@*	<div style="margin-left:10%;margin-right:10%;margin-bottom:5%;padding-left:5%;padding-right:5%;padding-bottom:5%;color:black;background-color:white;border-style:groove;border-radius:1vw">
+	<h3 style="text-align:center;font-weight:bold">Settings</h3>
+	<hr />
+	<div>
+	<input type="radio" name="options" @bind="water" /> Automatically avoid water
+	</div>
+	<div>
+	<input type="radio" name="options" @bind="water" /> Manually re-drag from water
+	</div>
+	</div>*@
 </div>
 @code
 {
-    [Parameter] public List<Loc> Past { get; set; }
-    [Parameter] public List<Loc> Future { get; set; }
-    [Parameter] public bool Kind { get; set; }
+	[Parameter] public List<Pin> Past { get; set; }
+	[Parameter] public List<Pin> Future { get; set; }
+	//private string water = "auto";
+
+	
 }

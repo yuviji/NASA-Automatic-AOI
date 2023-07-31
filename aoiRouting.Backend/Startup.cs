@@ -65,7 +65,7 @@ namespace aoiRouting.Backend
             app.UseSwaggerUI();
             string staticDirectory = Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles");
             Directory.CreateDirectory(staticDirectory);
-            Directory.CreateDirectory(Path.Combine(staticDirectory, "Images"));
+            // Directory.CreateDirectory(Path.Combine(staticDirectory, "Images"));
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new PhysicalFileProvider(staticDirectory),
@@ -83,7 +83,6 @@ namespace aoiRouting.Backend
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<PinHub>("/PinHub");
-                endpoints.MapHub<CommentHub>("/CommentHub");
             });
         }
     }

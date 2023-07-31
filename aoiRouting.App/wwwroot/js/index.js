@@ -7,21 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var PinKind;
-(function (PinKind) {
-    PinKind[PinKind["Litter"] = 0] = "Litter";
-    PinKind[PinKind["Park"] = 1] = "Park";
-    PinKind[PinKind["Trail"] = 2] = "Trail";
-    PinKind[PinKind["Other"] = 3] = "Other";
-})(PinKind || (PinKind = {}));
-let map, meMarker;
+let map;
+let meMarker;
 let pinMarkers = {};
 let pins = {};
 let mousedUp;
 let mapNetObject;
-let meIcon;
-let markerIconsLoc;
-let markerIconsPin;
+let meIcon, centroidIcon, pendingIcon, completedIcon;
 let PinPopup;
 const meSize = 50;
 const pinIconSize = 40;
@@ -47,13 +39,14 @@ function initMap(netObject, elementId, lat, lon, zoom) {
     let options = {
         zoom: zoom,
         center: latLng,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeId: 'hybrid',
         streetViewControl: false,
-        scaleControl: false,
-        zoomControl: false,
+        scaleControl: true,
+        zoomControl: true,
         mapTypeControl: false,
         fullscreenControl: false,
-        clickableIcons: false
+        clickableIcons: false,
+        tilt: 0
     };
     let mapElement = document.getElementById(elementId);
     map = new google.maps.Map(mapElement, options);
@@ -72,6 +65,7 @@ function initMap(netObject, elementId, lat, lon, zoom) {
     });
     map.addListener('mouseup', () => mousedUp = true);
     map.addListener('dragstart', () => mousedUp = true);
+    //TO-DO: INTEGRATE WATER console.log(isWaterLocation(40.547132, -74.391260));
 }
 function initResources() {
     meIcon =
@@ -81,59 +75,26 @@ function initResources() {
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(meSize / 2, meSize / 2)
         };
-    markerIconsPin =
+    centroidIcon =
         {
-            [PinKind.Litter]: {
-                url: '/assets/icons/litter1.svg',
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            },
-            [PinKind.Park]: {
-                url: '/assets/icons/park1.svg',
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            },
-            [PinKind.Trail]: {
-                url: "/assets/icons/trail1.svg",
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            },
-            [PinKind.Other]: {
-                url: "/assets/icons/other1.svg",
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            }
+            url: "/assets/icons/centroid.svg",
+            scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
         };
-    markerIconsLoc =
+    pendingIcon =
         {
-            [PinKind.Litter]: {
-                url: '/assets/icons/litter2.svg',
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            },
-            [PinKind.Park]: {
-                url: '/assets/icons/park2.svg',
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            },
-            [PinKind.Trail]: {
-                url: "/assets/icons/trail2.svg",
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            },
-            [PinKind.Other]: {
-                url: "/assets/icons/other2.svg",
-                scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
-            }
+            url: "/assets/icons/pending.svg",
+            scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
+        };
+    completedIcon =
+        {
+            url: "/assets/icons/collected.svg",
+            scaledSize: new google.maps.Size(pinIconSize, pinIconSize),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(pinIconSize / 2, pinIconSize / 2)
         };
     PinPopup = class extends google.maps.OverlayView {
         constructor(marker, content) {
@@ -177,56 +138,8 @@ function initResources() {
         }
     };
 }
-let locMarker = {};
-let locSet = {};
-let locBorder = {};
-function locDetails(id) {
-    mapNetObject.invokeMethodAsync('ViewLocDetails', id);
-}
-function previewLoc(id) {
-    let loc = locSet[id];
-    let marker = locMarker[id];
-    let content = document.createElement("div");
-    content.className = "google-map-info";
-    content.innerHTML = `<h2>${loc.title}</h2>`;
-    content.onclick = () => locDetails(id);
-    curInfoWindowId = id;
-    curInfoWindow = new PinPopup(marker, content);
-    curInfoWindow.setMap(map);
-}
-function placeLoc(loc) {
-    locSet[loc.id] = loc;
-    let avgx = 0.0, avgy = 0.0;
-    for (var i = 0; i < loc.lat.length; i++) {
-        avgx += loc.lat[i];
-        avgy += loc.lng[i];
-    }
-    avgx /= loc.lat.length;
-    avgy /= loc.lat.length;
-    let marker = new google.maps.Marker({
-        position: { lat: avgx, lng: avgy },
-        map: map,
-        icon: markerIconsLoc[loc.kind]
-    });
-    marker.addListener("click", () => previewLoc(loc.id));
-    locMarker[loc.id] = marker;
-    let border = [];
-    for (var j = 0; j < loc.lat.length; j++)
-        border.push(new google.maps.LatLng(loc.lat[j], loc.lng[j]));
-    let location = new google.maps.Polygon({
-        paths: border,
-        strokeColor: "#0000FF",
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        fillColor: "#0000FF",
-        fillOpacity: 0.35,
-    });
-    location.setMap(map);
-    location.addListener('click', () => previewLoc(loc.id));
-    locBorder[loc.id] = location;
-}
 function moveMeMarker(lat, lon) {
-    let pos = { lat: lat, lng: lon };
+    let pos = new google.maps.LatLng(lat, lon);
     if (meMarker == undefined) {
         meMarker = new google.maps.Marker({
             position: pos,
@@ -245,86 +158,108 @@ function previewPin(id) {
     let marker = pinMarkers[id];
     let content = document.createElement("div");
     content.className = "google-map-info";
-    content.innerHTML = `<h2>${pin.title}</h2>`;
+    content.innerHTML = `<h2>${pin.pointID}</h2>`;
     content.onclick = () => pinDetails(id);
     curInfoWindowId = id;
     curInfoWindow = new PinPopup(marker, content);
     curInfoWindow.setMap(map);
 }
-let locs = {};
-var numlocs = 0;
-function orientation(p, q, r) {
-    let val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);
-    if (val == 0)
-        return 0;
-    return (val > 0) ? 1 : 2;
-}
-function convexHull(points, n) {
-    let hull = [];
-    let l = 0;
-    for (let i = 1; i < n; i++)
-        if (points[i][0] < points[l][0])
-            l = i;
-    let p = l, q;
-    do {
-        hull.push(points[p]);
-        q = (p + 1) % n;
-        for (let i = 0; i < n; i++) {
-            if (orientation(points[p], points[i], points[q]) == 2)
-                q = i;
+function isWaterLocation(latitude, longitude) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = `https://isitwater-com.p.rapidapi.com/?latitude=${latitude}&longitude=${longitude}`;
+        const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': 'KEY-HERE',
+                'X-RapidAPI-Host': 'isitwater-com.p.rapidapi.com'
+            }
+        };
+        try {
+            const response = yield fetch(url, options);
+            const result = yield response.json();
+            console.log(result);
+            console.log(result.water);
+            console.log(result.water == 'water');
+            return result.water == 'water';
         }
-        p = q;
-    } while (p != l);
-    return hull;
-}
-function locSelect(paths, ids) {
-    mapNetObject.invokeMethodAsync('SelectLoc', paths, ids);
-}
-function createLoc(near) {
-    var data = JSON.parse(near);
-    if (data == null)
-        return;
-    for (var i = 0; i < numlocs; i++)
-        locs[i].setMap(null);
-    google.maps.event.clearInstanceListeners(google.maps.Polygon);
-    locs = {};
-    numlocs = data.length;
-    for (var i = 0; i < data.length; i++) {
-        let parsed = [];
-        let ids = [];
-        for (var j = 0; j < data[i].length; j++) {
-            parsed.push([data[i][j].Lat, data[i][j].Lon]);
-            ids.push(data[i][j].Id);
+        catch (error) {
+            console.error(error);
+            return false;
         }
-        let hull = convexHull(parsed, data[i].length);
-        let convexhull = [];
-        for (var j = 0; j < hull.length; j++)
-            convexhull.push(new google.maps.LatLng(hull[j][0], hull[j][1]));
-        let location = new google.maps.Polygon({
-            paths: convexhull,
-            strokeColor: "#FF0000",
-            strokeOpacity: 0.8,
-            strokeWeight: 3,
-            fillColor: "#FF0000",
-            fillOpacity: 0.35,
-        });
-        locs[i] = location;
-        location.setMap(map);
-        location.addListener('click', () => locSelect(hull, ids));
-    }
+    });
 }
 function placePin(pin) {
     pins[pin.id] = pin;
+    let i;
+    if (pin.collected != null) {
+        i = completedIcon;
+    }
+    else {
+        i = pendingIcon;
+    }
     let marker = new google.maps.Marker({
         position: { lat: pin.lat, lng: pin.lon },
         map: map,
-        icon: markerIconsPin[pin.kind]
+        icon: i,
+        draggable: true
     });
     marker.addListener("click", () => previewPin(pin.id));
+    marker.addListener("dragend", () => {
+        pin.lat = marker.getPosition().lat();
+        pin.lon = marker.getPosition().lng();
+        //mapNetObject.invokeMethodAsync('UpdateLocation', pin);
+    });
     pinMarkers[pin.id] = marker;
 }
 function pinDetails(id) {
     mapNetObject.invokeMethodAsync('ViewDetails', id);
+}
+function haversine_distance(a, b) {
+    var R = 6371.0710; // Radius of the Earth in kilometers
+    var rlat1 = a.lat * (Math.PI / 180); // Convert degrees to radians
+    var rlat2 = b.lat * (Math.PI / 180); // Convert degrees to radians
+    var difflat = rlat2 - rlat1; // Radian difference (latitudes)
+    var difflon = (b.lng - a.lng) * (Math.PI / 180); // Radian difference (longitudes)
+    var d = 2 * R * Math.asin(Math.sqrt(Math.sin(difflat / 2) * Math.sin(difflat / 2) + Math.cos(rlat1) * Math.cos(rlat2) * Math.sin(difflon / 2) * Math.sin(difflon / 2)));
+    return d;
+}
+function findNearestPins(n) {
+    n = Math.min(n, Object.keys(pins).length);
+    var meMarkerCoords = { lat: meMarker.getPosition().lat(), lng: meMarker.getPosition().lng() };
+    var sortedPins = Object.keys(pins).sort(function (a, b) {
+        var aCoords = { lat: pins[a].lat, lng: pins[a].lon };
+        var bCoords = { lat: pins[b].lat, lng: pins[b].lon };
+        return haversine_distance(meMarkerCoords, aCoords) - haversine_distance(meMarkerCoords, bCoords);
+    });
+    var nearestPins = sortedPins.slice(0, n);
+    var coordinates = nearestPins.map(function (pinId) {
+        var pinMarker = pinMarkers[pinId];
+        return { lat: pinMarker.getPosition().lat(), lng: pinMarker.getPosition().lng() };
+    });
+    var optimizedRoute = [meMarkerCoords];
+    var currentPoint = meMarkerCoords;
+    while (coordinates.length > 0) {
+        var closestPin;
+        var minDistance = Number.MAX_VALUE;
+        for (var i = 0; i < coordinates.length; i++) {
+            var distance = haversine_distance(currentPoint, coordinates[i]);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPin = i;
+            }
+        }
+        optimizedRoute.push(coordinates[closestPin]);
+        currentPoint = coordinates[closestPin];
+        coordinates.splice(closestPin, 1);
+    }
+    optimizedRoute.push(meMarkerCoords);
+    for (var i = 0; i < optimizedRoute.length - 1; i++) {
+        var line = new google.maps.Polyline({
+            path: [new google.maps.LatLng(optimizedRoute[i].lat, optimizedRoute[i].lng),
+                new google.maps.LatLng(optimizedRoute[i + 1].lat, optimizedRoute[i + 1].lng)],
+            map: map
+        });
+    }
 }
 let longPressIndicator;
 function placeLongPressIndicator(lat, lon) {
@@ -334,11 +269,10 @@ function placeLongPressIndicator(lat, lon) {
             position: pos,
             map: map,
             icon: {
-                url: "/assets/icons/pin.svg",
+                url: "/assets/icons/centroid.svg",
                 scaledSize: new google.maps.Size(meSize, meSize),
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(meSize / 2, meSize),
-                fillColor: "red"
             }
         });
     }

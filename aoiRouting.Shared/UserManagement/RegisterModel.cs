@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
 
 namespace aoiRouting.Shared.UserManagement
 {
@@ -11,15 +10,9 @@ namespace aoiRouting.Shared.UserManagement
         public string LastName { get; set; }
         public string Email { get; set; }
         [PasswordPropertyText] public string Password { get; set; }
-        public AccountType Type { get; set; }
         public bool ModelsIsNull()
         {
-            return FirstName == null || LastName == null || Email == null;
+            return FirstName == null || LastName == null || Email == null || Password == null;
         }
-    }
-    public enum AccountType
-    {
-        [Display(Name = "Individual")] Individual,
-        [Display(Name = "Organization")] Organization
     }
 }

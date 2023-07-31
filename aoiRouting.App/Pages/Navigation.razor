@@ -1,0 +1,72 @@
+﻿@using aoiRouting.App.Pages
+@using aoiRouting.Shared.Models
+
+@inject IJSRuntime Js;
+
+<h3 style="text-align:center;font-weight:bold">Navigation</h3>
+<hr />
+<center>
+	<div>
+		Find nearest <input type="number" style="width: 25px; margin: 0 5px" @bind="@n" min="1"/> point(s)<button style="margin-left: 25px" @onclick="Navigate">Go!</button> 
+	</div>
+	<div>
+		<ol>
+			@for (int i = 0; i < near.Count(); i++)
+			{
+				<li>Point @near[i].PointID @@ @near[i].Lat.ToString().Substring(0, 5)°, @near[i].Lon.ToString().Substring(0, 5)°</li>
+			}
+		</ol>
+	</div>
+</center>
+
+@code {
+	private int n = 1;
+	private List<Pin> near = new();
+	private async Task Navigate()
+	{
+		await Js.InvokeVoidAsync("findNearestPins", n);
+	}
+}
+@*
+	private
+
+	private void Navigate()
+	{
+		// Get the user's current location (latitude and longitude).
+		// For simplicity, we'll use some sample values here. You need to replace this with actual location retrieval logic.
+		double userLatitude = 37.7802;
+		double userLongitude = -122.4058;
+
+		// Step 1: Find a set of N AOI points that are close together.
+		List<Pin> closestPoints = FindClosestAOIPoints(userLatitude, userLongitude, numberOfPoints);
+
+		// Step 2: Handle the navigation to the AOI points or any other logic you need.
+
+		// Step 3: Get the uncollected point closest to the user's location.
+		Pin uncollectedClosestPoint = GetUncollectedClosestPoint(aoiPoints, userLatitude, userLongitude);
+
+		// For demonstration purposes, we'll log the results to the console.
+		Console.WriteLine($"Closest Points: {string.Join(", ", closestPoints.Select(p => p.Name))}");
+		Console.WriteLine($"Uncollected Closest Point: {uncollectedClosestPoint.Name}");
+	}
+
+	private List<Pin> FindClosestAOIPoints(double userLatitude, double userLongitude, int numberOfPoints)
+	{
+		// Implement the logic to find a set of N AOI points that are close together.
+		// For example, you can use the Haversine formula or any other distance calculation algorithm.
+
+		// For demonstration purposes, we'll return the first N points from the AOI list.
+		return null; // aoiPoints.Take(numberOfPoints).ToList();
+	}
+
+	private Pin GetUncollectedClosestPoint(List<Pin> aoiPoints, double userLatitude, double userLongitude)
+	{
+		// Implement the logic to get the uncollected point closest to the user's location.
+		// For example, you can loop through the AOI points, check if each point is collected,
+		// and calculate the distance using the Haversine formula or any other distance calculation algorithm.
+
+		// For demonstration purposes, we'll return the first uncollected point from the AOI list.
+		return null; //aoiPoints.FirstOrDefault(p => /* Check if the point is uncollected */);
+	}
+}
+*@

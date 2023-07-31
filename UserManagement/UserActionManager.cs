@@ -7,8 +7,6 @@ using LinqToDB;
 using CryptoHelper;
 using UserManagement.DataAccess;
 using UserManagement.Models;
-using System.Security.Claims;
-using aoiRouting.Shared.UserManagement;
 
 namespace UserManagement
 {
@@ -74,7 +72,7 @@ namespace UserManagement
             {
                 return new LoginResult.Failure();
             }
-            User? user = await _connection.Users.FirstAsync(u => u.UserId == loginCredential.UserId);
+            User? user = await _connection.Users.FirstAsync(u => u.UserID == loginCredential.UserID);
             if (user == null) return new LoginResult.Failure();
             return new LoginResult.Success(user);
         }
@@ -83,9 +81,9 @@ namespace UserManagement
             User? user = await _connection.Users.FirstOrDefaultAsync(u => u.Email == email);
             return user;
         }
-        public async Task<User?> GetUserById(Guid guid)
+        public async Task<User?> GetUserByID(Guid guid)
         {
-            User? user = await _connection.Users.FirstOrDefaultAsync(u => u.UserId == guid);
+            User? user = await _connection.Users.FirstOrDefaultAsync(u => u.UserID == guid);
             return user;
         }
         public UserDataConnection GetDb() => _connection;

@@ -12,34 +12,28 @@
 @inject IJSRuntime Js;
 <EditForm Model="@_model" OnValidSubmit="@SubmitPin">
     <div>
-        <InputText style="font-family:'Calibri';font-weight:bold" placeholder="Title..." @bind-Value="@_model.Title"/>
+        <label style="font-weight:bold">Latitude (°):</label>
+        <InputNumber placeholder="@_model.Position.Lat" style="color: white" @bind-Value="@_model.Position.Lat" />
     </div>
     <div>
-        <InputTextArea style="font-family:'Calibri';font-weight:bold" placeholder="Description..." @bind-Value="@_model.Description"/>
+        <label style="font-weight:bold">Longitude (°):</label>
+        <InputNumber placeholder="@_model.Position.Lon" style="color: white" @bind-Value="@_model.Position.Lon" />
     </div>
     <div>
-        <label style="font-family:'Calibri';font-weight:bold">Date:</label>
-        <InputDate style="font-family:'Calibri';font-weight:bold" @bind-Value="_date" />
-    </div>
-    <div>
-        <label style="font-family:'Calibri';font-weight:bold">Time:</label>
-        <InputText type="time" style="font-family:'Calibri';font-weight:bold" @bind-Value="TimeProxy" />
-    </div>
-    <div>
-        <label style="font-family:'Calibri';font-weight:bold">Expires In:</label>
-        <InputSelectEnum style="font-family:'Calibri';font-weight:bold" @bind-Value="_expiresOptions"/>
-    </div>
-    <div>
-        <label style="font-family:'Calibri';font-weight:bold">Type:</label>
-        <InputSelectEnum style="font-family:'Calibri';font-weight:bold" @bind-Value="_model.Kind"/>
-    </div>
-    <div>
+        <label style="font-weight:bold">Notes:</label>
         <br />
-        <label class="file-upload" style="float:left;font-family:'Calibri';font-weight:bold">Upload Image Here<InputFile OnChange="@OnFileChanged"/>
-        </label>
-        <button type="submit" style="float:right;font-family:'Calibri';font-weight:bold">Post</button>
-        <br />
-        <br />
+        <InputTextArea placeholder="Notes..." style="color: white" @bind-Value="@_model.Notes" />
+    </div>
+    <div>
+        <label style="font-weight:bold">Date:</label>
+        <InputDate style="color: white" @bind-Value="_date" />
+    </div>
+    <div>
+        <label style="font-weight:bold">Time:</label>
+        <InputText type="time" style="color: white" @bind-Value="TimeProxy" />
+    </div>
+    <div class="woops">
+        <button type="submit" style="float:right;font-weight:bold;">Submit!</button>
     </div>
 </EditForm>
 @code
@@ -54,46 +48,21 @@
     [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
     private DateTime _date = DateTime.Now.Date;
     private Pin _model = new();
-    private IBrowserFile _image;
-    private ExpiresOptions _expiresOptions;
-    private static Dictionary<ExpiresOptions, TimeSpan> ExpiresTimes = new()
+
+    protected override void OnInitialized()
     {
-        [ExpiresOptions.OneDay] = TimeSpan.FromDays(1),
-        [ExpiresOptions.OneWeek] = TimeSpan.FromDays(7),
-        [ExpiresOptions.OneMonth] = TimeSpan.FromDays(31),
-        [ExpiresOptions.OneYear] = TimeSpan.FromDays(365),
-    };
-    enum ExpiresOptions
-    {
-        [Display(Name = "1 Day")] OneDay,
-        [Display(Name = "1 Week")] OneWeek,
-        [Display(Name = "1 Month")] OneMonth,
-        [Display(Name = "1 Year")] OneYear
+        _model.Position = aoiRouting.Shared.Position.FromTuple(Position); 
     }
-    public async Task OnFileChanged(InputFileChangeEventArgs e)
-    {
-        _image = e.File;
-    }
-    private async Task<string> UploadImage()
-    {
-        var fileContent = new StreamContent(_image.OpenReadStream(8192000));
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue(_image.ContentType);
-        var result = await Http.PostAsync("Pin/UploadImage", fileContent);
-        var fileUrl = await result.Content.ReadAsStringAsync();
-        return fileUrl;
-    }
+
     private async Task SubmitPin()
     {
-        if (_image != null)
-        {
-            string imgUrl = await UploadImage();
-            _model.Image = Http.BaseAddress +  imgUrl;
-        }
         _model.Created = (_date + createdtime).ToUniversalTime();
-        _model.Expires = _model.Created + ExpiresTimes[_expiresOptions];
-        _model.Position = aoiRouting.Shared.Position.FromTuple(Position);
-        await Http.PostAsJsonAsync("Pin/Create", _model);
+        _model.Collected = null;
+        _model.PointID = 0;
+        await Http.PostAsJsonAsync("Pin/CreatePins", _model);
         await ModalInstance.CloseAsync(ModalResult.Ok("Submitted Successfully"));
         _model = new();
+        StateHasChanged();
+        NavigationManager.NavigateTo("/", forceLoad: true);
     }
 }

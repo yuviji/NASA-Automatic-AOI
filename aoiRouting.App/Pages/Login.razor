@@ -6,85 +6,99 @@
 @using System.Net
 @using aoiRouting.Shared.UserManagement
 @using Microsoft.Extensions.Primitives
-<body style="background-color:#0b3d91;width:100%;height:100%;font-family:'Calibri';font-weight:bold;">
-<div class="center-align-background" style="width:50%; margin-left:auto; margin-right:auto;">
-    <div class="form-outer" style="min-width: 250px; max-width: 500px; margin-left:auto; margin-right:auto">
-        <EditForm Model="@Model" OnValidSubmit="@Submit">
-            <DataAnnotationsValidator/>
-            <img src="/assets/icons/nasa.svg" style="padding-top:5%; border-radius:10px;display: block;margin-left: auto; margin-right: auto;" width = "70%" height = "auto"/>
-            <div class="form-input">
-                    <label style="color: white">Email</label>
-                <div>
-                    <br />
-                    <InputText style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="email" placeholder="alice-smith@example.com" @bind-Value="Model.Email"/>
-                </div>
-            </div>
-            <br/>
-            <div class="form-input">
-                <label style="color: white">Password</label>
-                <div>
-                    <br />
-                    <InputText style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="password" placeholder="password" @bind-Value="Model.Password"/>
-                </div>
-            </div>
-                <div class="form-error" style="color: white;">
-                <ValidationSummary/>
-                @if (!String.IsNullOrEmpty(_resultMessage))
-                {
-                        <div class="form-error-message"><br>@_resultMessage</div>
-                }
-            </div>
-            <br/>
-            <div class="centered-button-group" style="float:left; padding-left: 10%;">
-                <button type="submit" style="font-family:'Calibri';font-weight:bold">Sign In</button>
-            </div>
-        </EditForm>
-        <EditForm Model="@Model" OnValidSubmit="@Registration">
-            <div class="centered-button-group" style="float:right; padding-right: 10%;">
-                <button OnClick=Registration style="font-family:'Calibri';font-weight:bold">Register</button>
-            </div>
-        </EditForm>
-    </div>
-</div>
+<style>
+	body {
+		color: white;
+	}
+
+	.form-input {
+		margin-bottom: 1vh;
+	}
+
+	input {
+		margin-top: 1vh;
+		padding: 0.5vh 0.25vh;
+	}
+</style>
+<body style="background-color:#0b3d91;width:100%;height:100%;font-weight:bold;">
+	<div class="center-align-background" style="width:50%; margin-left:auto; margin-right:auto;">
+		<div class="form-outer" style="min-width: 250px; max-width: 500px; margin-left:auto; margin-right:auto">
+			<EditForm Model="@Model" OnValidSubmit="@Submit">
+				<DataAnnotationsValidator />
+				<a href="">
+					<img src="/assets/icons/nasa.svg" style="padding-top:5%; border-radius:10px;display: block;margin-left: auto; margin-right: auto; width: 70%; height: auto;"/>
+				</a>
+				<div class="form-input">
+					<label>Email</label>
+					<div>
+						<InputText style="width: 100%; box-sizing: border-box;font-weight:bold" id="email" placeholder="Email" @bind-Value="Model.Email" />
+					</div>
+				</div>
+				<br />
+				<div class="form-input">
+					<label>Password</label>
+					<div>
+						<InputText style="width: 100%; box-sizing: border-box;font-weight:bold" id="password" placeholder="Password" @bind-Value="Model.Password" />
+					</div>
+				</div>
+				<div class="form-error">
+					<ValidationSummary />
+					@if (!String.IsNullOrEmpty(_resultMessage))
+					{
+						<div class="form-error-message"><br>@_resultMessage</div>
+					}
+				</div>
+				<br />
+				<div style="float:left; padding-left: 10%;">
+					<button type="submit" style="font-weight:bold">Sign In</button>
+				</div>
+			</EditForm>
+			<EditForm Model="@Model" OnValidSubmit="@Registration">
+				<div style="float:right; padding-right: 10%;">
+					<button OnClick=Registration style="font-weight:bold">Register</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
 </body>
 @code
 {
-    private LoginModel Model = new();
-    private string _resultMessage;
-    private string _redirectUrl;
-    protected override void OnInitialized()
-    {
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("redirect", out var redirect))
-        {
-            _redirectUrl = redirect.ToString();
-        }
-    }
-    private async void Submit()
-    {
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("Account/Login", Model);
-        switch (response.StatusCode)
-        {
-            case HttpStatusCode.OK:
-                _resultMessage = "Login successful!";
-                StateHasChanged();
-                await Task.Delay(2000);
-                NavigationManager.NavigateTo("/", forceLoad: true);
-                break;
-            case HttpStatusCode.NoContent:
-                _resultMessage = "Account with specified email does not exist";
-                break;
-            case HttpStatusCode.BadRequest:
-                _resultMessage = "Incorrect email or password";
-                break;
-            case HttpStatusCode.InternalServerError:
-                _resultMessage = "An unexpected server error has occured";
-                break;
-        }
-        StateHasChanged();
-    }
-    private void Registration()
-    {
-        NavigationManager.NavigateTo("/Register", forceLoad:true);
-    }
+	private LoginModel Model = new();
+	private string _resultMessage;
+	private string _redirectUrl;
+	protected override void OnInitialized()
+	{
+		var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+		if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("redirect", out var redirect))
+		{
+			_redirectUrl = redirect.ToString();
+		}
+	}
+	private async void Submit()
+	{
+		HttpResponseMessage response = await HttpClient.PostAsJsonAsync("Account/Login", Model);
+		switch (response.StatusCode)
+		{
+			case HttpStatusCode.OK:
+				_resultMessage = "Login successful!";
+				StateHasChanged();
+				await Task.Delay(2000);
+				NavigationManager.NavigateTo("/", forceLoad: true);
+				break;
+			case HttpStatusCode.NoContent:
+				_resultMessage = "Account with specified email does not exist";
+				break;
+			case HttpStatusCode.BadRequest:
+				_resultMessage = "Incorrect email or password";
+				break;
+			case HttpStatusCode.InternalServerError:
+				_resultMessage = "An unexpected server error has occured";
+				break;
+		}
+		StateHasChanged();
+	}
+	private void Registration()
+	{
+		NavigationManager.NavigateTo("/Register", forceLoad: true);
+	}
 }

@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using UserManagement.DataAccess;
 using UserManagement.Models;
 using UserManagement.Models.Validators;
+
 namespace UserManagement
 {
     public class Validator

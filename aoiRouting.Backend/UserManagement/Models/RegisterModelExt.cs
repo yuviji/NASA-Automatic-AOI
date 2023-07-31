@@ -2,7 +2,7 @@
 using CryptoHelper;
 using aoiRouting.Shared.UserManagement;
 using UserManagement.Models;
-using System.Collections.Generic;
+
 namespace aoiRouting.Backend.UserManagement.Models
 {
     public static class RegisterModelExt
@@ -16,7 +16,7 @@ namespace aoiRouting.Backend.UserManagement.Models
         }
         public static User GetNewUser(this RegisterModel model)
         {
-            return new User(Guid.NewGuid(), $"{model.FirstName} {model.LastName}", model.Email, model.Type, DateTime.UtcNow, (new List<Guid>()).ToArray());
+            return new User(Guid.NewGuid(), model.FirstName, model.LastName, model.Email, DateTime.UtcNow);
         }
         public static EmailPassCredential GetNewCredential(this RegisterModel model, User user)
         {

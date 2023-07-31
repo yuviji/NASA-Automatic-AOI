@@ -1,12 +1,13 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+
 namespace aoiRouting.Shared.Models
 {
     public record Pin
     {
-        public Guid Id { get; set; }
-        public Guid Author { get; set; }
-        public string Title { get; set; }
+        public Guid ID { get; set; }
+        public Guid AOIID { get; set; }
+        public Guid UserID { get; set; }
+        public int PointID { get; set; }
         public double Lat { get; set; }
         public double Lon { get; set; }
         public Position Position
@@ -18,17 +19,8 @@ namespace aoiRouting.Shared.Models
                 Lon = value.Lon;
             }
         }
-        public DateTime Created { get; set; }
-        public PinKind Kind { get; set; }
-        public string Image { get; set; }
-        public string Description { get; set; }
-        public DateTime Expires { get; set; }
-    }
-    public enum PinKind
-    {
-        [Display(Name ="Litter Pickup")] Litter,
-        [Display(Name="Park Cleanup")] Park,
-        [Display(Name="Trail Maintenance")] Trail,
-        [Display(Name="Other")] Other,
-    }
+		public string Notes { get; set; }
+		public DateTime Created { get; set; }
+        public DateTime? Collected { get; set; }
+	}
 }

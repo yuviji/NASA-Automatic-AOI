@@ -1,28 +1,23 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
 using LinqToDB.Mapping;
-using aoiRouting.Shared.UserManagement;
 
 namespace UserManagement.Models
 {
     [Table(Name = "users")]
     public record User
     {
-        public User(Guid userId, string friendlyName, string email, AccountType type, DateTime created, Guid[] signups)
+        public User(Guid userId, string firstName, string lastName, string email, DateTime created)
         {
-            UserId = userId;
-            FriendlyName = friendlyName;
+            UserID = userId;
+            FirstName = firstName;
+            LastName = lastName;
             Email = email;
             Created = created;
-            Type = type;
-            Signups = signups;
         }
-        [PrimaryKey] [Column(Name = "userid")] public Guid UserId { get; set; }
-        [Column(Name = "friendlyname")] public string FriendlyName { get; set; }
+        [PrimaryKey] [Column(Name = "id")] public Guid UserID { get; set; }
+        [Column(Name = "first_name")] public string FirstName { get; set; }
+        [Column(Name = "last_name")] public string LastName { get; set; }
         [Column(Name = "email")] public string Email { get; set; }
         [Column(Name = "created")] public DateTime Created { get; set; }
-        [Column(Name = "kind")] public AccountType Type { get; set; }
-        [Column(Name = "signups")] public Guid[] Signups { get; set; }
     }
 }

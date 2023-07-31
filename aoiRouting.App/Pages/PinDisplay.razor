@@ -1,0 +1,61 @@
+﻿@using aoiRouting.Shared
+@using aoiRouting.Shared.Models
+
+@inject IJSRuntime Js;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager;
+
+<div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center">
+	<div>
+		<input type="checkbox" @bind="done" @onclick="HandleCheckboxClick" />
+	</div>
+	<div style="margin-left: 15px">
+		@pin.PointID
+	</div>
+	<div style="margin-left: 15px">
+		<p style="font-weight:normal; font-size:smaller">
+			<b>@Title</b>
+			<br />
+			@_text
+			<br />
+		</p>
+	</div>
+</div>
+
+@code
+{
+	[Parameter] public Pin pin { get; set; }
+	[Parameter] public bool done { get; set; }
+	private string _text, Title;
+
+	protected override void OnInitialized()
+	{
+		Title = pin.Position.Lat.ToString().Substring(0, 7) + "°, " + pin.Position.Lon.ToString().Substring(0, 7) + "°";
+		if (done)
+		{
+			DateTime temp = ((DateTime)(pin.Collected)).ToLocalTime();
+			_text = "Collected: " + temp.ToString("MM/dd/yy") + ", " + temp.ToString("hh:mm");
+		}
+		else
+		{
+			pin.Created = pin.Created.ToLocalTime();
+			_text = "Created: " + pin.Created.ToString("MM/dd/yy") + ", " + pin.Created.ToString("hh:mm");
+		}
+	}
+
+	private async Task HandleCheckboxClick()
+	{
+		if (!done)
+		{
+			pin.Collected = DateTime.UtcNow;
+		}
+		else
+		{
+			pin.Collected = null;
+		}
+		await Http.PostAsJsonAsync("Pin/UpdateCollection", pin);
+		StateHasChanged();
+		await Task.Delay(500);
+		NavigationManager.NavigateTo("/", forceLoad: true);
+	}
+}

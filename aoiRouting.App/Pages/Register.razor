@@ -5,65 +5,88 @@
 @using System.Net
 @using aoiRouting.Shared.UserManagement
 @using System.ComponentModel.DataAnnotations
+<style>
+	body {
+		color: white;
+	}
+
+	.form-input {
+		margin-bottom: 1vh;
+	}
+
+	input {
+		margin-top: 1vh;
+		padding: 0.5vh 0.25vh;
+	}
+</style>
 <div class="center-align-background" style="width:50%; margin-left:auto; margin-right:auto;">
-    <div class="form-outer" style="min-width: 250px; max-width: 500px; margin-left:auto; margin-right:auto">
-        <EditForm Model="@RegModel" OnValidSubmit="@Submit">
-            <FluentValidationValidator />
-            <img src="/assets/icons/nasa.svg" style="padding-top:5%; border-radius:10px;display: block;margin-left: auto; margin-right: auto;" width="50%" height="auto" />
-            <div class="form-input">
-                <label>First Name</label>
-                <div>
-                    <InputText style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="first-name" placeholder="Alice" @bind-Value="RegModel.FirstName" />
-                </div>
-            </div>
-            <br />
-            <div class="form-input">
-                <label>Last Name</label>
-                <div>
-                    <InputText style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="last-name" placeholder="Smith" @bind-Value="RegModel.LastName" />
-                </div>
-            </div>
-            <br />
-            <div class="form-input">
-                <label>Type</label>
-                <div>
-                    <InputSelectEnum style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="type" @bind-Value="RegModel.Type" />
-                </div>
-            </div>
-            <br />
-            <div class="form-input">
-                <label>Email</label>
-                <div>
-                    <InputText style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="email" placeholder="alice-smith@example.com" @bind-Value="RegModel.Email" />
-                </div>
-            </div>
-            <br />
-            <div class="form-input">
-                <label>Password</label>
-                <div>
-                    <InputText style="width: 100%; box-sizing: border-box; font-family:'Calibri';font-weight:bold" id="password" placeholder="password" @bind-Value="RegModel.Password" />
-                </div>
-            </div>
-            <br />
-            <div class="form-error">
-                <ValidationSummary />
-            </div>
-            <div class="centered-button-group">
-                <button type="submit" style="font-family:'Calibri';font-weight:bold">Register</button>
-            </div>
-        </EditForm>
-    </div>
+	<div class="form-outer" style="min-width: 250px; max-width: 500px; margin-left:auto; margin-right:auto">
+		<EditForm Model="@RegModel" OnValidSubmit="@Submit">
+			<FluentValidationValidator />
+			<a href="">
+				<img src="/assets/icons/nasa.svg" style="padding-top:5%; border-radius:10px;display: block;margin-left: auto; margin-right: auto;" width="50%" height="auto" />
+			</a>
+			<div class="form-input">
+				<label>First Name</label>
+				<div>
+					<InputText style="width: 100%; box-sizing: border-box; font-weight:bold" id="first-name" placeholder="John" @bind-Value="RegModel.FirstName" />
+				</div>
+			</div>
+			<br />
+			<div class="form-input">
+				<label>Last Name</label>
+				<div>
+					<InputText style="width: 100%; box-sizing: border-box; font-weight:bold" id="last-name" placeholder="Doe" @bind-Value="RegModel.LastName" />
+				</div>
+			</div>
+			<br />
+			<div class="form-input">
+				<label>Email</label>
+				<div>
+					<InputText style="width: 100%; box-sizing: border-box; font-weight:bold" id="email" placeholder="Email" @bind-Value="RegModel.Email" />
+				</div>
+			</div>
+			<br />
+			<div class="form-input">
+				<label>Password</label>
+				<div>
+					<InputText style="width: 100%; box-sizing: border-box; font-weight:bold" id="password" placeholder="Password" @bind-Value="RegModel.Password" />
+				</div>
+			</div>
+			<div class="form-error">
+				<ValidationSummary />
+				@if (!String.IsNullOrEmpty(_resultMessage))
+				{
+					<div class="form-error-message"><br>@_resultMessage</div>
+				}
+			</div>
+			<center>
+				<div>
+					<button type="submit" style="font-weight:bold">Register</button>
+				</div>
+			</center>
+		</EditForm>
+	</div>
 </div>
 @code
 {
-    private RegisterModel RegModel = new();
-    private async void Submit()
-    {
-        if (RegModel.ModelsIsNull()) return;
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("Account/Register", RegModel);
-        if (response.StatusCode == HttpStatusCode.OK)
-        {
-            NavigationManager.NavigateTo("/Login", forceLoad: true);
-        }
-    }
+	private RegisterModel RegModel = new();
+	private string _resultMessage;
+	private async void Submit()
+	{
+		if (RegModel.ModelsIsNull()){
+			_resultMessage = "Fill all fields!";
+			return;
+		}
+		HttpResponseMessage response = await HttpClient.PostAsJsonAsync("Account/Register", RegModel);
+		if (response.StatusCode == HttpStatusCode.OK)
+		{
+			_resultMessage = "Registration successful!";
+			NavigationManager.NavigateTo("/Login", forceLoad: true);
+		}
+		else
+		{
+			_resultMessage = "Account with email already exists!";
+		}
+	}
 }
