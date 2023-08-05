@@ -1,0 +1,44 @@
+// Table Definitions
+
+Table users {
+    id UUID [pk]
+    first_name VARCHAR(255) [not null]
+    last_name VARCHAR(255) [not null]
+    email VARCHAR(255) [not null, unique]
+    created TIMESTAMP [not null]
+}
+
+Table credentials {
+    id UUID [pk]
+    user_id UUID [not null]
+    kind INTEGER [not null]
+    identifier VARCHAR(1023) [not null]
+    secret VARCHAR(1023) [not null]
+}
+
+Table pins {
+    id UUID [pk]
+    aoi_id UUID [not null]
+    user_id UUID [not null]
+    point_id INT [not null]
+    lat DOUBLE [not null]
+    lon DOUBLE [not null]
+    notes TEXT
+    created TIMESTAMP [not null]
+    collected TIMESTAMP
+}
+
+Table aois {
+    id UUID [pk]
+    user_id UUID [not null]
+    centroid_id UUID
+    notes TEXT
+    created TIMESTAMP [not null]
+}
+
+// Foreign Key Constraints
+
+Ref: credentials.user_id > users.id
+Ref: pins.aoi_id > aois.id
+Ref: pins.user_id > users.id
+Ref: aois.user_id > users.id
