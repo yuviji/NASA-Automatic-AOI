@@ -1,5 +1,3 @@
--- \i 'C:\\Users\\yuvit\\source\\repos\\nasa-aoi-routing\\aoiRouting.Backend\\databasesetup.sql'
-
 -- Drop the existing database
 DROP DATABASE nasa;
 
